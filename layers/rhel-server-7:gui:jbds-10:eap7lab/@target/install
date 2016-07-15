@@ -1,0 +1,53 @@
+#!/bin/bash -ex
+
+. vm-functions
+
+EXTENSIONS_SYSTEM='/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/'
+EXTENSIONS_USER=`echo ~/.mozilla/firefox/*.default/extensions/`
+
+# -------------------------- xpi tools ---------------------------------
+
+get_addon_id_from_xpi () { #path to .xpi file
+    addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
+    addon_id=`echo $addon_id_line | sed "s/.*>\(.*\)<.*/\1/"`
+    echo "$addon_id"
+}
+
+get_addon_name_from_xpi () { #path to .xpi file
+    addon_name_line=`unzip -p $1 install.rdf | egrep '<em:name>' -m 1`
+    addon_name=`echo $addon_name_line | sed "s/.*>\(.*\)<.*/\1/"`
+    echo "$addon_name"
+}
+
+# Installs .xpi given by relative path
+# to the extensions path given
+install_addon () {
+    xpi="${PWD}/${1}"
+    extensions_path=$2
+    new_filename=`get_addon_id_from_xpi $xpi`.xpi
+    new_filepath="${extensions_path}${new_filename}"
+    addon_name=`get_addon_name_from_xpi $xpi`
+    if [ -f "$new_filepath" ]; then
+        echo "File already exists: $new_filepath"
+        echo "Skipping installation for addon $addon_name."
+    else
+        cp "$xpi" "$new_filepath"
+    fi
+}
+
+git clone https://github.com/RedHat-Middleware-Workshops/eap7-modernization /home/demo/exercises
+cp -r software /home/demo
+chown -R demo:demo /home/demo/software /home/demo/exercises
+
+# install firefox asciidoctor plugin
+https_proxy=$PROXY curl -sLO https://github.com/asciidoctor/asciidoctor-firefox-addon/releases/download/v0.5.4/asciidoctor-firefox-addon-0.5.4-signed.xpi
+install_addon asciidoctor-firefox-addon-0.5.4-signed.xpi "$EXTENSIONS_SYSTEM"
+rm -rf asciidoctor-firefox-addon-0.5.4-signed.xpi
+firefox_set_homepage file:///home/demo/exercises/README.adoc
+
+# warm up maven cache to avoid massive downloading of the internet for workshop participants
+su - demo -c "cd /home/demo/exercises/projects/02_frontend; mvn dependency:resolve dependency:go-offline dependency:resolve-plugins"
+su - demo -c "cd /home/demo/exercises/projects/03_batch/batch-processing; mvn dependency:resolve dependency:go-offline dependency:resolve-plugins"
+su - demo -c "cd /home/demo/exercises/projects/04_messaging/helloworld-mdb; mvn dependency:resolve dependency:go-offline dependency:resolve-plugins"
+su - demo -c "cd /home/demo/exercises/projects/04_messaging/helloworld-jms; mvn dependency:resolve dependency:go-offline dependency:resolve-plugins"
+su - demo -c "cd /home/demo/exercises/projects/05_concurrency/managed-executor-service; mvn dependency:resolve dependency:go-offline dependency:resolve-plugins"

@@ -1,0 +1,33 @@
+#!/bin/bash -ex
+
+. vm-functions
+
+register_channels rhel-7-server-rpms rhel-7-server-extras-rpms rhel-7-server-optional-rpms
+
+yum_install $MIRROR_FEDORA/pub/epel/7/x86_64/e/epel-release-7-7.noarch.rpm
+sed -i -e "s!^#baseurl=http://download.fedoraproject.org/!baseurl=$MIRROR_FEDORA/!; s/^mirrorlist=/#mirrorlist=/" /etc/yum.repos.d/epel.repo
+
+yum_install java-1.8.0-openjdk-devel unzip git ansible httpd-tools nodejs npm
+yum_remove epel-release-7-7
+rm /etc/yum.repos.d/epel.repo.rpmsave
+
+npm install bower -g
+npm install gulp -g
+
+http_proxy=$PROXY curl -sO http://www.mirrorservice.org/sites/ftp.apache.org/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+tar -xzf apache-maven-3.3.9-bin.tar.gz
+mv apache-maven-3.3.9 /usr/local
+ln -sf /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin
+
+mkdir -p /home/demo/.m2
+cp settings.xml /home/demo/.m2
+chown -R demo:demo /home/demo/.m2
+
+### Download and install JBDS
+# http://download.eng.brq.redhat.com/released/jbdevstudio/8.1.0/jboss-devstudio-8.1.0.GA-installer-standalone.jar
+curl -sO http://$APILISTENER/static/isos/devstudio-10.0.0.GA-installer-standalone.jar
+java -jar devstudio-10.0.0.GA-installer-standalone.jar InstallConfigRecord.xml
+cp 'Red-Hat-JBoss-Developer-Studio-10.0.0.GA.desktop' /usr/share/applications
+install -m 0755 -o demo 'Red-Hat-JBoss-Developer-Studio-10.0.0.GA.desktop' /home/demo/Desktop
+
+firefox_set_homepage http://localhost:8080/

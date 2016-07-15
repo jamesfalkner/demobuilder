@@ -1,0 +1,11 @@
+name: JBoss Developer Studio 10 plus tools image
+maintainers:
+- James Falkner <jfalkner@redhat.com>
+description: |
+  This image provides a base installation of JBoss Developer Studio plus
+  developer tools: OpenJDK, Maven, Git, frontend tools and other supporting tools
+  like Ansible, HTTPD Tools, bower, node.js, npm, and JBoss Developer Studio 10.
+  You must put devstudio-10.0.0.GA-installer-standalone.jar into the isos directory!
+layer:
+  cpus: 2
+  mem: 4096

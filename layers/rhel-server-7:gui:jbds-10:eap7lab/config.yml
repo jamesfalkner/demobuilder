@@ -1,0 +1,8 @@
+name: EAP 7 Developer Workshop
+maintainers:
+- James Falkner <jfalkner@redhat.com>
+description: |
+  This image provides tools for the EAP 7 Developer Workshop.
+layer:
+  cpus: 2
+  mem: 4096
