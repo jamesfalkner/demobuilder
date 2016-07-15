@@ -2,7 +2,7 @@ name: EAP 7 Developer Workshop
 maintainers:
 - James Falkner <jfalkner@redhat.com>
 description: |
-  This image provides tools for the EAP 7 Developer Workshop. you must place the EAP 7 distribution file jboss-eap-7.0.0.zip into the software/ directory.
+  This image provides tools for the EAP 7 Developer Workshop. you must place the EAP 7 distribution file jboss-eap-7.0.0.zip into the @target/software/ directory.
 layer:
   cpus: 2
   mem: 4096
